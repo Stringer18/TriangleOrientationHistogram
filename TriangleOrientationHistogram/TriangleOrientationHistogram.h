@@ -15,15 +15,32 @@
 
 
 // ----------------------------------------------------------------------------
+// Ask the user what he wants
+void dialogWhatToDo( bool &fReadStlFile, bool &fWriteTxtFile,
+        bool &fShowHistogram );
+
+
+// ----------------------------------------------------------------------------
+// Ask input question, read answer and return it.
+bool boolQuestion( std::string strQuestion );
+
+
+// ----------------------------------------------------------------------------
 // Asks for the filename and generate string paths for further work.
 void prepareFilenames(  std::string &strInputFile,
                         std::string &strOutputFile );
 
 
 // ----------------------------------------------------------------------------
-// Read data from the input file (block by block) and calls the function for
-// process the received data.
-DWORD readInputFile( std::map<double, double> &mapHistogram,
+// Read data from the input stl file (block by block) and calls the function
+// for process the received data.
+DWORD readStlFile( std::map<double, double> &mapHistogram,
+        std::string &strInputFile );
+
+
+// ----------------------------------------------------------------------------
+// Read data from the input txt file and add it to histogram.
+DWORD readTxtFile( std::map<double, double> &mapHistogram,
         std::string &strInputFile );
 
 

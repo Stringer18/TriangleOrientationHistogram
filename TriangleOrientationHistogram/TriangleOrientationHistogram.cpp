@@ -5,37 +5,134 @@ int main(int argc, char *argv[])
     setToLog( "Starting." );
 
     // ------------------------------------------------------------------------
-    std::string strInputFile = "";
-    std::string strOutputFile = "";
+    bool fReadStlFile;
+    bool fWriteTxtFile;
+    bool fShowHistogram;
 
+    printf( "\nIt is a program for calculating and displaying a histogram " );
+    printf( "of triangle orientation.\n" );
+
+    dialogWhatToDo( fReadStlFile, fWriteTxtFile, fShowHistogram );
+
+    // ------------------------------------------------------------------------
+    std::string strStlFile = "";
+    std::string strTxtFile = "";
     std::map<double, double> mapHistogram;    // <angle in degrees, sum area>
-    for( int i = 0 ; i < _HISTOGRAM_SIZE_ ; i++ )
+    DWORD ulError = 0;
+
+    prepareFilenames( strStlFile, strTxtFile );
+
+    // ------------------------------------------------------------------------
+    if( fReadStlFile )
     {
-        mapHistogram[ -90.0 + i * 180.0 / ( _HISTOGRAM_SIZE_ - 1 ) ] = 0.0;
+        for( int i = 0 ; i < _HISTOGRAM_SIZE_ ; i++ )
+        {
+            mapHistogram[ -90.0 + i * 180.0 / ( _HISTOGRAM_SIZE_ - 1 ) ] = 0.0;
+        }
+        ulError = readStlFile( mapHistogram, strStlFile );
+    }
+    else
+    {
+        ulError = readTxtFile( mapHistogram, strTxtFile );
     }
 
     // ------------------------------------------------------------------------
-    prepareFilenames( strInputFile, strOutputFile );
-    DWORD ulError = readInputFile( mapHistogram, strInputFile );
     if( ulError == 0 )
     {
-        ulError = writeOutputFile( mapHistogram, strOutputFile );
+        if( fWriteTxtFile )
+        {
+            ulError = writeOutputFile( mapHistogram, strTxtFile );
+        }
+        
+        if( fShowHistogram )
+        {
+            WorkWindow *workWindow = new WorkWindow();
+            workWindow->displayHistogram( mapHistogram );
+            delete workWindow;
+        }
     }
 
     // ------------------------------------------------------------------------
-    WorkWindow *workWindow = new WorkWindow();
-    workWindow->displayHistogram( mapHistogram );
-
-    delete workWindow;
-    
-    // ------------------------------------------------------------------------
     mapHistogram.clear();
-    //getchar();  getchar();
 
-    if( ulError == 0 ) { setToLog( "Exit." ); }
-    else { setToLog( "Exit error " + toString(ulError) ); }
+    if( ulError == 0 )
+    {
+        setToLog( "Exit." );
+    }
+    else
+    {
+        setToLog( "Exit error " + toString(ulError) );
+        getchar(); getchar();
+    }
 
     return ulError;
+}
+
+
+// ----------------------------------------------------------------------------
+void dialogWhatToDo( bool &fReadStlFile, bool &fWriteTxtFile,
+        bool &fShowHistogram )
+{
+    printf( "Do you want to calculate a new histogram?\n" );
+    printf( "\tY\tYes, new calculate (data from stl-file).\n" );
+    printf( "\tN\tNo, open old result (data from txt-file).\n" );
+    fReadStlFile = boolQuestion( "Choose your option, please" );
+
+    if( fReadStlFile )
+    {
+        fWriteTxtFile = boolQuestion( toString( "Do you want to write" ) +
+                " the result to the file?" );
+        if( fWriteTxtFile )
+        {
+            fShowHistogram = boolQuestion( toString( "Do you want to" ) +
+                " show histogram?" );;
+        }
+        else
+        {
+            fShowHistogram = true;
+        }
+    }
+    else
+    {
+        fWriteTxtFile = false;
+        fShowHistogram = true;
+    }
+
+    setToLog( toString( "Selected answer - " ) +
+            ( fReadStlFile ? "open stl-file, " : "open txt-file, " ) +
+            ( fWriteTxtFile ? "" : "don\'t " ) + "write result to txt-file, " +
+            ( fShowHistogram ? "" : "don\'t " ) + "show histogram." );
+}
+
+
+// ----------------------------------------------------------------------------
+bool boolQuestion( std::string strQuestion )
+{
+    char chAnswer[_MAX_STR_BUFF_SIZE_];
+    printf( "%s [Y/N] ? ", strQuestion.c_str() );
+    do
+    {
+        scanf_s( " %s", &chAnswer, _MAX_STR_BUFF_SIZE_ );
+        switch( chAnswer[0] )
+        {
+            case 'y':
+            case 'Y':
+            {
+                return true; // break;
+            }
+            case 'n':
+            case 'N':
+            {
+                return false; // break;
+            }
+            default:
+            {
+                printf( "Unknown answer. Choose option Y or N, please: " );
+                break;
+            }
+        }
+    }
+    while( true );
 }
 
 
@@ -58,24 +155,23 @@ void prepareFilenames(  std::string &strInputFile,
 
 
 // ----------------------------------------------------------------------------
-DWORD readInputFile( std::map<double, double> &mapHistogram,
+DWORD readStlFile( std::map<double, double> &mapHistogram,
         std::string &strInputFile )
 {
     FILE *fpInput;
     if( fopen_s( &fpInput, strInputFile.c_str(), "r") != 0 )
     {
         DWORD ulError = GetLastError();
-        setToLog( "Error " + toString(ulError) + ". Cannot open input file " +
+        setToLog( "Error " + toString(ulError) + ". Cannot open file " +
                 strInputFile );
         return ulError;
     }
     else
     {
-        setToLog( "Opened input file " + strInputFile );
+        setToLog( "Opened file " + strInputFile );
 
         // --------------------------------------------------------------------
         char szBuff[_MAX_STR_BUFF_SIZE_];
-        for( int i = 0 ; i < _MAX_STR_BUFF_SIZE_ ; i++ ) { szBuff[i] = '\0'; }
         
         double dblarrNormal[_SPACE_DIMENSION_];
         double dblarrPointA[_SPACE_DIMENSION_];
@@ -114,6 +210,43 @@ DWORD readInputFile( std::map<double, double> &mapHistogram,
 
             processingData( mapHistogram, dblarrNormal,  dblarrPointA,
                     dblarrPointB, dblarrPointC );
+        }
+
+        fclose( fpInput );
+    }
+    return 0;
+}
+
+
+// ----------------------------------------------------------------------------
+DWORD readTxtFile( std::map<double, double> &mapHistogram,
+        std::string &strInputFile )
+{
+    FILE *fpInput;
+    if( fopen_s( &fpInput, strInputFile.c_str(), "r") != 0 )
+    {
+        DWORD ulError = GetLastError();
+        setToLog( "Error " + toString(ulError) + ". Cannot open file " +
+                strInputFile );
+        return ulError;
+    }
+    else
+    {
+        setToLog( "Opened file " + strInputFile );
+
+        char szBuff[_MAX_STR_BUFF_SIZE_];
+        double dblAngle;
+        double dblArea;
+        
+        setToLog( "Reading data from file " + strInputFile );
+
+        // First line with headers - skip.
+        fgets( szBuff, _MAX_STR_BUFF_SIZE_, fpInput );
+
+        while( !( feof( fpInput ) ) )
+        {
+            fscanf_s( fpInput, "%le %le", &dblAngle, &dblArea );
+            mapHistogram[dblAngle] = dblArea;
         }
 
         fclose( fpInput );
@@ -199,13 +332,13 @@ DWORD writeOutputFile( std::map<double, double> &mapHistogram,
     if( fopen_s( &fpOutput, strOutputFile.c_str() , "w") != 0 )
     {
         DWORD ulError = GetLastError();
-        setToLog( "Error " + toString(ulError) + ". Cannot open output file " +
+        setToLog( "Error " + toString(ulError) + ". Cannot open file " +
                 strOutputFile );
         return ulError;
     }
     else
     {
-        setToLog( "Opened output file " + strOutputFile );
+        setToLog( "Opened file " + strOutputFile );
 
         // --------------------------------------------------------------------
         fprintf( fpOutput, "Angle_in_degrees Sum_area\n" );
