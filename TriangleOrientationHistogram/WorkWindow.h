@@ -47,7 +47,7 @@ class WorkWindow
 
         // --------------------------------------------------------------------
         // Creates the contents of the window and draws a histogram in it.
-        void displayHistogram( std::map<int, double> &mapHistogram );
+        void displayHistogram( std::map<double, double> &mapHistogram );
 
 
         // --------------------------------------------------------------------

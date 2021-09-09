@@ -181,7 +181,7 @@ void WorkWindow::getColorFromIni( SDL_Color &sdlColor, char *szGroup,
 
 
 // ----------------------------------------------------------------------------
-void WorkWindow::displayHistogram( std::map<int, double> &mapHistogram )
+void WorkWindow::displayHistogram( std::map<double, double> &mapHistogram )
 {
     SDL_RenderClear( m_psdlRenderer );
 
@@ -225,7 +225,7 @@ void WorkWindow::displayHistogram( std::map<int, double> &mapHistogram )
     // Scales divisions and values
     double dblMaxValueElement = 0.0;
 
-    for( std::map<int, double>::iterator it = mapHistogram.begin() ; it !=
+    for( std::map<double, double>::iterator it = mapHistogram.begin() ; it !=
             mapHistogram.end(); it++)
     {
         if( dblMaxValueElement < it->second )
@@ -233,6 +233,9 @@ void WorkWindow::displayHistogram( std::map<int, double> &mapHistogram )
             dblMaxValueElement = it->second;
         }
     }
+    dblMaxValueElement = ( dblMaxValueElement < 10.0 ?
+            ceil( dblMaxValueElement ) :
+            ( ceil( dblMaxValueElement / 10.0 ) * 10.0 ) );
 
     SDL_Texture* psdlBuffTexture = nullptr;
     std::vector<SDL_Texture*> vecPSdlTextTextures;
@@ -240,6 +243,7 @@ void WorkWindow::displayHistogram( std::map<int, double> &mapHistogram )
     
     getDataFromIni( &iBuff, "histogramCadre", "iScaleDivisionLen", 0 );
 
+    //On vertical scale
     getDataFromIni( &iScaleValueIndent, "histogramCadre", "iScaleValueIndentX",
             0 );
     for( int i = 0 ; i < 11 ; i++ )
@@ -260,7 +264,7 @@ void WorkWindow::displayHistogram( std::map<int, double> &mapHistogram )
                 iBuff, iScaleY, sdlCadreRect.x + sdlCadreRect.w - 1, iScaleY );
     }
 
-    // On 
+    // On horizontal scale
     getDataFromIni( &iScaleValueIndent, "histogramCadre", "iScaleValueIndentY",
             0 );
     sdlBuffRect.y = sdlCadreRect.y + sdlCadreRect.h + iScaleValueIndent;
@@ -269,7 +273,9 @@ void WorkWindow::displayHistogram( std::map<int, double> &mapHistogram )
         int iScaleX = sdlCadreRect.x + (int) round( sdlCadreRect.w * i / 4.0 );
 
         strTextToSdlTexture( psdlBuffTexture, sdlBuffRect.w, sdlBuffRect.h,
-                toString( -100 + i * 50 ) );
+                toString( mapHistogram.begin()->first + i * (
+                mapHistogram.rbegin()->first - mapHistogram.begin()->first ) /
+                4.0 ) );
         vecPSdlTextTextures.push_back( psdlBuffTexture );
         sdlBuffRect.x = iScaleX - sdlBuffRect.w / 2;
         SDL_RenderCopy( m_psdlRenderer, psdlBuffTexture, NULL, &sdlBuffRect );
@@ -283,6 +289,16 @@ void WorkWindow::displayHistogram( std::map<int, double> &mapHistogram )
     }
 
     // ------------------------------------------------------------------------
+    // Help text for exit
+    sdlBuffRect.x = sdlCadreRect.x;
+    sdlBuffRect.y = sdlBuffRect.y + sdlBuffRect.h + iScaleValueIndent;
+    strTextToSdlTexture( psdlBuffTexture, sdlBuffRect.w, sdlBuffRect.h,
+            "Press any keyboard key or mouse button to close the window." );
+    vecPSdlTextTextures.push_back( psdlBuffTexture );
+    SDL_RenderCopy( m_psdlRenderer, psdlBuffTexture, NULL, &sdlBuffRect );
+    psdlBuffTexture = nullptr;
+
+    // ------------------------------------------------------------------------
     // Elements of histogram
     SDL_Color sdlElementFillColor;
     SDL_Color sdlElementOutlineColor;
@@ -292,7 +308,7 @@ void WorkWindow::displayHistogram( std::map<int, double> &mapHistogram )
     sdlBuffRect.w = iElelmentW;
 
     int i = 0;
-    for( std::map<int, double>::iterator it = mapHistogram.begin() ; it !=
+    for( std::map<double, double>::iterator it = mapHistogram.begin() ; it !=
             mapHistogram.end() ; it++ )
     {
         sdlBuffRect.x = sdlCadreRect.x + i * iElelmentW;
