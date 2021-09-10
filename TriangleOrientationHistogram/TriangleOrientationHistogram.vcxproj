@@ -96,10 +96,14 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>C:\_In_Disk_\Visual Studio 2015\Projects\TriangleOrientationHistogram\TriangleOrientationHistogram\Libs\SDL2-2.0.10\include;C:\_In_Disk_\Visual Studio 2015\Projects\TriangleOrientationHistogram\TriangleOrientationHistogram\Libs\SDL2_ttf-2.0.15\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>C:\_In_Disk_\Visual Studio 2015\Projects\TriangleOrientationHistogram\TriangleOrientationHistogram\Libs\SDL2-2.0.10\lib\x86;C:\_In_Disk_\Visual Studio 2015\Projects\TriangleOrientationHistogram\TriangleOrientationHistogram\Libs\SDL2_ttf-2.0.15\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2test.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
