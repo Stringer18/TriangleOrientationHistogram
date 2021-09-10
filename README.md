@@ -58,15 +58,15 @@ After transferring the project, you need to check and correct some of the projec
 
 ### Внимание!
 
-После переноса проекта, необходимо проверить и поправить некоторые настройки проекта. В пунктах 1 и 2 необходимо указать/исправить пути к соответствующим каталогам билиотек. В пунктах 3 и 4 необходимо проверить, что содержимое соответствует спискам ниже.
+После переноса проекта, необходимо проверить и поправить некоторые настройки проекта. В пунктах 1 и 2 необходимо указать/исправить пути к соответствующим каталогам билиотек. В пунктах 3 и 4 необходимо проверить, что содержимое соответствует спискам ниже.  
 
 	Project -> Properties ->
 	1. C/C++ -> General -> Aditional Include Directories:
-		C:\_In_Disk_\Visual Studio 2015\Projects\TriangleOrientationHistogram\TriangleOrientationHistogram\Libs\SDL2-2.0.10\include
-		C:\_In_Disk_\Visual Studio 2015\Projects\TriangleOrientationHistogram\TriangleOrientationHistogram\Libs\SDL2_ttf-2.0.15\include
+		***Full_path_to_the_directory_with_the_project***\TriangleOrientationHistogram\TriangleOrientationHistogram\Libs\SDL2-2.0.10\include
+		***Full_path_to_the_directory_with_the_project***\TriangleOrientationHistogram\TriangleOrientationHistogram\Libs\SDL2_ttf-2.0.15\include
 	2. Linker -> General -> Aditional Library Directories:
-		C:\_In_Disk_\Visual Studio 2015\Projects\TriangleOrientationHistogram\TriangleOrientationHistogram\Libs\SDL2-2.0.10\lib\x86
-		C:\_In_Disk_\Visual Studio 2015\Projects\TriangleOrientationHistogram\TriangleOrientationHistogram\Libs\SDL2_ttf-2.0.15\lib\x86
+		***Full_path_to_the_directory_with_the_project***\TriangleOrientationHistogram\TriangleOrientationHistogram\Libs\SDL2-2.0.10\lib\x86
+		***Full_path_to_the_directory_with_the_project***\TriangleOrientationHistogram\TriangleOrientationHistogram\Libs\SDL2_ttf-2.0.15\lib\x86
 	3. Linker -> Input -> Aditional Dependencies:
 		SDL2.lib
 		SDL2main.lib
